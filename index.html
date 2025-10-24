@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>K~Light Novel — Thế giới truyện của Huỳnh Ngọc Khiết</title>
+  <meta name="description" content="K~Light Novel - Thư viện Light Novel. Reader full-screen, dark mode, comments, ratings, bookmarks."/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Sawarabi+Mincho&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ================= THEME VARS ================= */
+    :root{
+      --bg-1:#041022;
+      --bg-2:#071a2b;
+      --card:#071428;
+      --muted:#b6c6d9;
+      --sea-a:#00b7ff;
+      --sea-b:#0077ff;
+      --glass: rgba(255,255,255,0.03);
+      --ui-radius:14px;
+      --reader-maxw:920px;
+      --accent-gradient: linear-gradient(90deg,var(--sea-a),var(--sea-b));
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto, Arial; -webkit-font-smoothing:antialiased}
+    body{
+      background: radial-gradient(900px 400px at 10% 8%, rgba(0,183,255,0.03), transparent 8%), linear-gradient(180deg,var(--bg-1),var(--bg-2));
+      color:#eaf6ff;
+      overflow-y:auto;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* ================ HEADER ================ */
+    header{padding:36px 18px 120px;text-align:center;position:relative;overflow:visible}
+    .intro-card{
+      display:inline-block;padding:20px 26px;border-radius:18px;background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.006));
+      border:1px solid rgba(255,255,255,0.04);backdrop-filter: blur(6px);max-width:980px;
+    }
+    .site-title{
+      font-family:'Sawarabi Mincho', serif; font-size:34px; font-weight:800; letter-spacing:0.2px; line-height:1;
+      color:#fff;
+    }
+    /* tilde inline centered and sea gradient */
+    .site-title .tilde{
+      display:inline-block; vertical-align:middle; margin:0 6px;
+      background:var(--accent-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      font-weight:900; text-shadow:0 6px 22px rgba(0,120,255,0.12);
+    }
+    .site-sub{color:var(--muted); margin-top:10px; font-weight:500; font-size:14px}
+
+    /* mascot */
+    .mascot{position:absolute;width:120px;filter:drop-shadow(0 12px 28px rgba(0,0,0,0.45));transition:transform .36s}
+    .mascot.left{left:14px;top:6px}
+    .mascot.right{right:18px;top:22px;width:150px}
+    .mascot:hover{transform:translateY(-6px) rotate(-6deg)}
+
+    main{max-width:1140px;margin:-80px auto 80px;padding:0 18px;position:relative;z-index:2}
+
+    /* =============== GRID & CARD =============== */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+      border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.04);display:flex;gap:12px;align-items:flex-start;min-height:150px;
+      transition:transform .18s, box-shadow .18s;backdrop-filter: blur(4px);
+    }
+    .card:hover{transform:translateY(-8px);box-shadow:0 28px 70px rgba(0,110,200,0.12)}
+    .cover{width:120px;height:160px;border-radius:12px;object-fit:cover;flex:0 0 120px;box-shadow:0 10px 30px rgba(0,0,0,0.45)}
+    .meta .title{font-weight:800;font-size:18px;color:#EAF6FF}
+    .meta .author{color:var(--muted);font-size:13px;margin-top:6px}
+    .meta .desc{color:var(--muted);margin-top:10px;font-size:13px}
+    .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
+    .btn-primary{background:var(--accent-gradient); color:#022; box-shadow:0 8px 26px rgba(0,150,255,0.12)}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--muted)}
+
+    .panel{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border:1px solid rgba(255,255,255,0.02); color:var(--muted);margin-top:18px}
+
+    /* sakura petals & sparkles */
+    .sakura-wrap{pointer-events:none;position:fixed;inset:0;z-index:1;overflow:hidden}
+    .petal{position:absolute;top:-10%;width:18px;height:18px;border-radius:8px;background:radial-gradient(circle at 30% 30%, #ffd6ec,#ff9ad0);opacity:.95;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.12));animation:fall linear infinite}
+    @keyframes fall{0%{transform:translateY(-10vh) rotate(0deg);opacity:0}10%{opacity:1}100%{transform:translateY(120vh) rotate(720deg);opacity:0.95}}
+    .sparkles{position:fixed;inset:0;z-index:1;pointer-events:none}
+    .spark{position:absolute;width:6px;height:6px;border-radius:50%;background:linear-gradient(90deg,#dffaff,#00ccff);filter:blur(4px);opacity:.8;animation:floaty 6s linear infinite}
+    @keyframes floaty{0%{transform:translateY(0) scale(.6);opacity:0}10%{opacity:1}100%{transform:translateY(-160px) scale(1.1);opacity:0}}
+
+    /* overlay & modal */
+    .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:60}
+    .overlay.show{display:flex;background:rgba(2,2,5,0.6)}
+    .modal{width:94%;max-width:980px;max-height:92vh;overflow:auto;border-radius:14px;padding:18px;background:linear-gradient(180deg,#fff,#faf9fb);color:#111;position:relative}
+    .cover-lg{width:140px;height:190px;border-radius:12px;object-fit:cover;box-shadow:0 10px 30px rgba(0,0,0,0.12)}
+    .chap-item{padding:10px;border-radius:10px;background:#fff;margin-bottom:8px;cursor:pointer;border:1px solid rgba(0,0,0,0.04)}
+
+    /* ================ READER ================ */
+    .reader-full{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,#fff,#f8fbff);color:#111;display:flex;flex-direction:column;align-items:center;overflow:auto}
+    .reader-toolbar{position:sticky;top:0;width:100%;backdrop-filter: blur(8px);background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.94));display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid rgba(0,0,0,0.06);z-index:110}
+    .reader-controls{display:flex;gap:10px;align-items:center}
+    .reader-body{max-width:var(--reader-maxw);width:100%;padding:36px 22px 120px;font-size:18px;line-height:1.85;color:#111;background:transparent}
+    .reader-body p{margin-bottom:14px}
+    .reader-body img{max-width:100%;display:block;margin:18px auto;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.12)}
+
+    /* dark theme for reader with different font for readability */
+    .reader-dark{background:linear-gradient(180deg,#021025,#02131a);color:#eaf6ff}
+    .reader-dark .reader-toolbar{background:linear-gradient(180deg, rgba(4,8,12,0.95), rgba(6,10,14,0.9));border-bottom:1px solid rgba(255,255,255,0.03)}
+    .reader-dark .reader-body{color:#EAF6FF; font-family: 'Sawarabi Mincho', serif; font-size:19px}
+
+    /* comments */
+    .comments-panel{max-width:var(--reader-maxw);width:100%;background:linear-gradient(180deg,rgba(255,255,255,0.98),#fff);border-radius:12px;padding:18px;margin:18px 0;color:#111;box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+    .comment{border-bottom:1px solid rgba(0,0,0,0.06);padding:10px 0}
+    .comment .meta{font-size:13px;color:#666}
+    .rating-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+
+    /* responsive */
+    @media (max-width:900px){
+      .grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+      .cover{width:100px;height:140px}
+      .reader-body{font-size:17px;padding:22px}
+      .site-title{font-size:26px}
+      .mascot{display:none}
+    }
+  </style>
+</head>
+<body>
+  <!-- sakura/petals and sparkles -->
+  <div class="sakura-wrap" id="sakura"></div>
+  <div class="sparkles" id="sparkles"></div>
+
+  <!-- header -->
+  <header>
+    <img src="/images.png/ticker.png/Ln2.png" class="mascot left" alt="bìa nhỏ" onerror="this.style.display='none'">
+    <img src="images/sticker2.png" class="mascot right" alt="mascot" onerror="this.style.display='none'">
+
+    <div class="intro-card" role="banner">
+      <div class="site-title">K<span class="tilde">~</span>Light Novel</div>
+      <div class="site-sub">Tác Giả: <strong>Huỳnh Ngọc Khiết</strong> — Phong Cách: Romcom</div>
+    </div>
+  </header>
+
+  <main>
+    <section style="margin-bottom:18px">
+      <h2 style="color:#EAF6FF;margin:0 0 12px">Tác phẩm nổi bật</h2>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section>
+      <div class="panel">
+        <strong>Hướng dẫn</strong>
+        <div style="margin-top:8px;color:var(--muted)">
+          Nhấn "Đọc truyện" để mở reader toàn màn hình. Trong reader có Prev / Next để chuyển chương, phím ← → để điều hướng, Esc để đóng. Chế độ tối đổi font (Sawarabi Mincho) để đọc rõ hơn. Bình luận và đánh giá được lưu cục bộ (localStorage).
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- modal (story details) -->
+  <div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+  <footer style="color:var(--muted);text-align:center;padding:32px 12px">© <span id="year"></span> K~Light Novel • Huỳnh Ngọc Khiết</footer>
+
+  <script>
+    /* ================= DATA (full chapter 1 included exactly) ================= */
+    const STORY = {
+      id: 'story-001',
+      title: 'Tôi Đã Cố Không Phải Người Đặc Biệt, Nhưng Tôi Là Người Đặc Biệt Lọt Vào Mắt Xanh Của Cô Bạn Hoàn Hảo',
+      shortTitle: 'Tôi Đã Cố Không Phải Người Đặc Biệt',
+      author: 'KCSM•IAM',
+      cover: '/images.png/ticker.png/Ln2.png',
+      vol: 'Vol 1',
+      cast: [
+        'Nhân Vật Chính: Katashi Hyroshi',
+        'Nữ Chính: Aiko Kazumi',
+        'Em Gái Katashi: Sumi Hyroshi',
+        '[] Kunio Suy Nghĩ',
+        '[] Aiko',
+        '[] Những Người Khác',
+        '() Đọc Thoại'
+      ],
+      chapters: [
+        {
+          id: 'ch1',
+          title: 'Chương 1: Nhìn Về Quá Khứ',
+          content: `Tôi Đã Cố Không Phải Người Đặc Biệt, Nhưng Tôi Là Người Đặc Biệt Lọt Vào Mắt Xanh Của Cô Bạn Hoàn Hảo 
+Tác Giả: KCSM•IAM 
+Vol 1:
+• Nhân Vật Chính: Katashi Hyroshi 
+• Nữ Chính: Aiko Kazumi 
+• Em Gái Katashi: Sumi Hyroshi 
+• [] Kunio Suy Nghĩ
+• [] Aiko 
+• [] Những Người Khác 
+• () Đọc Thoại 
+Chương 1: Nhìn Về Quá Khứ 
+[Lúc Còn Học Cấp 1 Vào Năm mình vừa Vào Lớp 1 mình Đã Vô Cùng Háo Hức Sách Cặp Và Tập vỡ trên tay để chào đón 1 khởi đầu mới, ngay lúc đó mình đã kì vọng quá nhiều vào thành tích và đã đạt được nó 1 cách vô cùng dễ dàng điếu đó cứ lặp đi lặp lại suốt 6 năm và mình đã chán ngấy cái việc đấy rồi, trong 6 năm đó mình còn chả cần nổ lực gì mà vẫn có thể đứng đầu trên bảng điểm được mệnh danh là thần đồng qg mới , mọi người ai cũng ngưỡng mộ về mình và cũng có những kẻ đố kị bên ngoài thì trưng ra cái bộ mặt hòa đồng ngưỡng mộ nhưng bên trong thì thâm độc tìm đủ mọi việc để hại mình nhưng đều bị mình phát giác được nhờ vậy mới né được nó nhưng những trò bẩn thỉu ấy vẫn cứ tiếp diễn mãi suốt 6 năm có điều không 1 lần nào là thành công.
+Qua vài lần ấy thì mình cũng chả thèm để tâm đến nữa, có điều mà mình quan tâm lúc đó là cái sứ mệnh chết tiệc của 1 thiên tài là phải cống hiến cho mọi người vô điều kiện điều đó đã đem lại cho mình 1 tuổi thơ vô cùng đen tối cứ bị ràng buộc bởi xứ mệnh mà không có bất kì cái sở thích hay những cuộc chơi đùa hồn nhiên như những đứa trẻ khác.
+Và những ngày tháng đấy cứ lặp đi lặp lại tôi thấy mình giống như 1 con robot đã được lặp trình sẵn để hoàn thành sứ mệnh, 1 ngày nọ mình không nhớ rõ vào mùa nào, nhưng mình nhớ là vào 1 buổi chiều mình đang đi dọc bờ sông thì trời đổ cơn mưa rào.
+Nhìn những hạt mưa cứ rơi mãi mà không có 1 ràng buộc nào nó cứ rơi xuống ngẫu nhiên trên mặt đất từng giọt long lanh mà chả có quy luật gì ràng buộc nhìn chúng thật là tự do làm sao, cho đến khi những hạt mưa rơi xuống ướt hết phần đất, trong đầu mình vào lúc đó đã đặt ra 1 câu hỏi tại sao mình lại làm theo vô điều kiện.? Tại sao mình phải làm điều đấy trong khi mình không muốn.? 
+Tại sao mình lại ép buộc bản thân như thế và lí do là gì mà mình phải làm như thế? À đúng rồi là cái xứ mệnh đáng nguyền rủa này vì nó mà mình có 1 cuộc sống vô cùng tẻ nhạt không có chút niềm vui. 
+Vừa đặt câu hỏi rồi đưa ra câu trả lời xong thì cơn mưa đã tạnh trước mắt tôi là 1 cảnh tượng Khi ánh nắng vàng ươm của mặt trời dần chuyển sang màu cam, hồng và đỏ rực rỡ ấy là lúc hoàng hôn buông xuống là khoảnh khắc gần cuối trong ngày. Một khung cảnh tuyệt đẹp, mang đến cho con người tôi một cảm giác bình yên, nhẹ nhàng và tĩnh lặng
+Và mình lúc đó đã quyết định từ bỏ tất cả để chọn theo những hạt mưa ấy tự do ấy, để có 1 cuộc sống mà mình mong muốn. 
+À mình nhớ ra rồi đó là vào mua hè năm cuối cấp + với cơn mưa vô tình ấy đã giúp cho mình cho dũng khí để nói ra mong muốn cho riêng mình và đó cũng là lần đầu tiên mình làm điều đó.
+Khi ánh hoàng hôn đã không còn nữa thì mình đã rạo bước về nhà với 1 tâm trạng và cảm xúc vô cùng hỗn độn, về đến nhà như mọi khi thì mình lên phòng cất đồ và đi tắm và ngồi vào bàn ăn với gia đình.
+Nhưng hôm nay khác với mọi khi vì mình dùng bữa chỉ ăn có 1 chút ít và chả nói gì bình thường thì mình ăn cũng khá nhiều đôi chút có nói 1 vài chuyện, bố mẹ mình đã nhận ra điều bất thường và bố là người hỏi đầu tiên (Katashi Hôm nay con bị sao vậy, con cảm thấy không khỏe ở đâu à).
+Nghe thấy câu hỏi mình đã im lặng một hồi lâu thì mình đã quyết định cởi bỏ chiếc mặt nạ dói trá với cảm xúc mình và nói ra điều mình mong muốn.(Con Không muốn sông 1 cuộc sống với cái sứ mệnh thiên tài đó nữa, con muốn có cuộc sống của riêng mình không bị ràng buộc bởi trách nhiệm đó nữa, con muốn 1 cuộc sống tự do).
+Khi nói xong cả nhà sững sờ, người phản ứng đầu tiên là ông của mình, ông đã nói phản đối 1 cách thẳng thắng, tiếp theo là bố và mẹ còn bà thì im lặng khi bị phản đối như thế mình đã đứng lên nói ra hết tất cả những cảm xúc thật của mình. Nhưng mà gia đình vẫn phản đối việc từ bỏ, mình lúc đó đã vô cùng bất lực và chập nhận số phận có điều đã xãy ra là bà đã đồng ý. Cả nhà điều phản đối chỉ riêng bà là đồng ý.
+Như thế là bà đã nói giúp mình nhưng bố mẹ và ông vẫn không đồng ý, bà đã nói ra những ý kiến của mình và cuộc tranh luận diễn ra tầm khoảng 15 phút thì bà đã đưa ra 1 điều kiện cho mình để mọi người chấp thuận, bà đã nói là "khi gia tộc và mọi người trong gia đình gặp khó khăn thì mình vẫn phải sử dụng bộ óc thiên tài để trợ giúp chứ không không được từ bỏ tất cả như vậy và còn lại thì mình được tự do, sao nào con đồng ý với điều kiện này chứ",nghe vậy mình đã lập tức đồng ý và mọi người thấy vậy cũng đành chấp thuận.]
+(Này~này Katashi kun)
+(Aaaa cậu đứng sau lưng mình đừng kêu bất ngờ như vậy chứ)
+(Ểh cậu giật mình sao, đúng là đồ thỏđế) (Này này đứng có đứng sau lưng người ta kêu bất ngờ rồi trêu như thế chứ cái cậu này)
+....
+(Thôi mà thôi mà nhìn mặt cậu thất thần vậy mình trêu tí thôi, cho mình xin nhỗi được chưa nè)
+....
+(Ủa nhớ lúc nãy cậu nói lên phòng hợp hội nghị mà sao mà cậu ở đây)
+(À thì lúc nãy mình đã đi rồi nhưng cuộc hợp cho khóa mình đã bị hoãn lại nên mình đã đi về đây nè)
+....
+(Ồ thì ra là vậy)
+Rengggggg....rengggggg.... 
+(tới giờ học rồi ư nhanh vậy) 
+(thì hôm trước trường có thông báo là sẽ rút ngắn thời gian học và giờ ra chơi cho học sinh về sớm để trường thay mấy cái bóng đèn lớp ấy, bộ cậu quên rồi à)
+....
+(Ủa có dụ đó nữa hả sao mình không nhớ....)
+(Đúng là đồ ngốc cậu chả bao giờ để tâm đến thông báo của trường, thôi mình về chổ ngồi đây)
+(À um) 
+
+Vào được tiết học 1 lúc thì Katashi đã lăng ra ngủ thấy vậy Aiko đã khều nhẹ vào tay của cậu để kêu cậu dậy, cậu ấy giật mình thức giấc và tiếp tục ngủ nữa, thấy vậy aiko khều cậu ấy 1 lần nữa nhưng vẫn như lần trước là cậu ấy vẫn tiếp tục ngủ, hết cách Aiko đành quay lên nghe giảng bài.
+Sau giờ ta Katashi đi cùng Aiko về nhà, 2 người họ vừa đi vừa trò chuyện nhìn cứ như 1 cặp đôi đang tán dốc, bỗng chợt bụng Katashi reo lên thấy Aiko rủ Katashi vào cửa hàng tiện lợi mua 1 ít đồ 
+....
+Ọtttt ọttttt 
+(Này~Katashi Kun hay là mình ghé vào cửa hàng tiện lợi mua ít đồ đi) 
+[Ểh bụng mình kêu lên bị cậu ấy nghe thấy mất rồiiiii, chỉ tại hôm qua mình thức khuya đọc truyện làm hại sáng ngủ quên nên chẳng kiệp ăn sáng]
+(Ờ cũng được vậy mình vào đi)
+....
+(Ố key đi thoi~)
+Vào cửa hàng tiện lợi mua đồ lúc thì 2 người họ đi ra với 2 túi đồ trên tay 
+(Sao cậu mua gì nhiều thế, bộ cậu định mua về nấu cho bữa tối à ) 
+(Cậu đoán đúng rồi đó chàng trai, cấm lấy mở hộ giùm mình chai nước với)
+(Ờ um) 
+[Đúng là 1 cô gái hoàn hảo vừa dễ thương hoạt bát thông minh lại còn thêm đảm đang 1 hình mẫu người con gái tài sắc vẹn toàn mà bất kì thằng con trai nào trên thế giới cũng muốn, mà mình lại được đi cùng cậu ấy mỗi ngày và được cậu ấy quan tâm đến không hiểu sao người vô dụng như mình lại được cậu ấy quan tâm đến vậy, ểhhhhhh có lẽ nào cậu ấyy....ủa mình lại nghỉ cái gì vậy cơ chứ mình với Aiko chỉ là bạn bình thường thôi mà lại nghĩ linh tinh rồi haha chắc tại bụng mình còn đói nên suy nghĩ bậy bạ] 
+Roắt 
+(Nè cậu uống đi để mình xách đồ hộ cho)
+(Arigato) 
+Sau khi cả 2 dạo bước 1 lúc thì đã tới nhà aiko. 
+(À tới nhà mình rồi tạm biệt cậu nha Katashi~Kun)
+(Ờ tạm biệt cậu hẹn gặp lại ) 
+.... 
+(Bái baii). 
+
+Sau khi đưa Aiko về thì Katashi về nhà ngay lúc mở cánh cửa nhà ra thì 1 cảnh tượng đã đập thẳng vào mắt cậu 1 cảnh tượng hỗn độn không rác gì bãi rác thu nhỏ trong nhà.1 tiếng hét thất thanh với đầy sự bất lực. 
+(SUUUU    MIIII....) 
+(Làm gì mà la lên như thể bị ai bắt cóc vậy O ni ~ Chan ngốc của em) 
+(Ngốc cái đầu nhà mi) 
+"Baka lè" 
+(Oni~Chan ngốc, cái đồ Oni~Chan ngốc) 
+....
+(Này này đừng có tự ý vứt đồ người ta lung tung rồi nói như vậy nha cái con này) 
+(Thôi được rồi cho xin lỗiiii được chưa) 
+(Rồi làm gì mà vứt truyện với đống mô hình của anh vậy cơ chứ) 
+(Thì tại em đóii) 
+(Mắc gì đói thì tự vô nấu ăn đi má tự nhiên làm vậy biết sót lắm hong) 
+(Là tại anh đi về mà cứ lang thang với bà chị vếu to kia chi không lo về nhà nấu cho em ăn). 
+(Chậc) 
+(Rồi anh mày lang thang thì sao mắc mớ gì mà mi nói cậu ấy như vậy, đừng đứng trước mặt Aiko mà nói ra như vậy nghe chưa) 
+(Biết dòi biết dòi, để em dọn được chưa) 
+(Thôi để đó anh dọn cho vào ăn đi, anh có mua phần ramen với cơm cà ri nè muốn ăn gì thì cứ ăn đi) 
+(Arigato Oni Chan Baka) 
+Dọn dẹp xong và tắm rửa sạch sẽ thì đã thấy cô em gái ăn xong và ngồi trên ghế sofa xem tivi. 
+(Ồ còn phần cơm cà ri á anh vào ăn đi) 
+(Ờ) 
+....
+(Này anh hai)
+(Gì?) 
+(Hồi anh có rảnh không) 
+(Có nhưng trước 10 giờ nghe) 
+(Lúc nãy em làm rơi cái kẹp tốc vô kẹt tủ rồi tí nữa anh lên khiên cái tủ ra lấy kẹp tóc giúp em với) 
+(Ờ um, để hồi anh lấy cho) 
+....
+....
+(Ồ sao phòng con nhỏ này sạch sẽ ngăn nắp thế sao lúc nãy nó không quậy phòng của nó mà cứ thích qua phòng mình phá, đúng là con nhỏ ranh ma mà). 
+(Em nghe hết đấy anh trai ngốc à) 
+(Ủa lên đây hồi nào vậy) 
+[Ấy chết nói xấu bị lộ mất rồi] 
+(Hihihihi) 
+Sau khi cả 2 bước vào phòng thì Sumi đã ngồi lên chiếc giường của mình 
+(Cái tủ quần áo này à) 
+(Chính xác) 
+....
+Bụp 
+....
+[Đây là....cái kẹp tóc mà mình tặng nó khi vừa lên 7 tuổi đây mà không ngờ là nó còn giữ tới giờ luôn]
+(Aaaa, nó đây rồi~Arigato Oni~Chan" 
+"Không nói ngốc nữa à) 
+.... 
+(Người ta đã cảm ơn đàng hoàng như vậy rồi mà còn nói vậy nữa đúng là cái đồ anh trai ngốc mà) 
+[Nhìn vẻ mặt háo hức như vậy chắc là con bé đã rất trân trong và gìn giữ cẩn thận món quà mà mình đã tặng] 
+Tiếng cười hihihihi
+(Thôi anh về phòng đây nhớ ngủ sớm nghe chưa) 
+....
+(Ố kê). 
+
+Ngày hôm sau, Katashi đến trường suýt nữa thì đã muộn học và tiếp tục lăng đùng ra ngủ, Aiko thấy vậy thì đã lại gần thì thầm vào tai cậu. 
+(Ohayo Katashi Kun tối qua cậu lại thức khuya cày anime nữa à~) 
+Nghe được lời nói nhỏ nhẹ ngọt ngào của Aiko cậu liền bật dậy trả lời. 
+(Chính xác, thế mấy bộ cậu kêu mình giới thiệu cậu đã xem hết chưa) 
+.... 
+Aiko cũng có xem anime nhưng cô ấy chỉ xem mấy bộ do Katashi giới thiệu thôi à còn những bộ truyện nữa. 
+.... 
+(À mình mới chỉ xem được mấy tập thôi khi nào có thời gian rảnh mình mới xem á) 
+(Thế à, tậm biệt cậu mình ngủ tiếp đây đừng có gọi mình dậy nữa nhé) 
+(Ơ nàyy!) 
+(Mình xinn~~ cậu đấy cho mình ngủ xíu thôi) 
+(Đúng là hết cách mà) 
+.... 
+
+Thế là Katashi đã ngủ được khoản 15 phút thì thức giấc và lấy tập vỡ ra ghi bài, đến giờ giải lao thì Katashi đã tức tốc chạy ra khỏi phòng học, Aiko qua sang nhìn với khuôn mặt ngơ ngát, sau 1 lúc thì Katashi đã quay trở lại với 1 lon nước ép táo trên tay. 
+(À Hôm nay mình không thấy cậu mang theo chai nước bình thường thì mình thấy cậu sẽ mang theo chai nước đến giờ giải lao thì cậu lấy ra uống, mình thấy hôm nay thời tiết khá nóng nên mình nghĩ cậu sẽ khát nước và mình xuống dưới mua đồ ăn sẵn tiện mua lon nước ép táo cho cậu luôn). 
+(Cảm ơn cậu Katashi~ kun)
+....
+(À không có gì) 
+[Ểhhhhhhh cậu ấy có để ý đến mình và biết hôm nay mình đã quên mang theo nước ư,lúc nãy cứ tưởng cậu ấy đi đâu ai ngờ là đi mua nước cho mình uốngggggg!]
+Khi nói thầm trong đầu thì khuôn mặt Aiko dần ửng đỏ lên.
+(Cậu bị sao à Aiko?)
+(À không mình không có bị gì hết á) 
+
+(Ồ)
+....
+(Mà này Aiko)
+(Hả)
+(Chiều về mình bận mua ít đồ cho Sumi nên là cậu tự đi về 1 mình được không)
+....
+(Ểh cứ tưởng chuyện gì, vậy cậu đi mua đồ cho em ấy đi)
+(Mà không biết cậu về 1 mình có ổn không đấy)
+....
+(Cậu đang lo cho mình à)
+(Tất nhiên là lo rồi đi vào lúc trời tối như vậy đối với mình thì không sao chứ cậu thì khá là nguy hiểm). 
+(Hay là kêu bố mẹ cậu ra đón cậu về) 
+....
+(Bố mẹ mình đi công tác rồi, mình về 1 mình được mà không sao đâu, mình đi thẳng về nhà mà có tấp vô chổ nào đâu mà lo)
+(Liệu Ổn không đấy?) 
+(Ổn mà ổn mà). 
+Đến giờ tan học 2 người họ đã đứng trước cổng trường và chào tạm biệt nhau Aiko thì đi về còn Katashi thì chạy đến trung tâm thương mại để mua kẹo socola bản giới hạn để lấy chiếc mũ tặng kèm.
+(Thế tạm biệt cậu mình đi đây cậu về nhà cẩn thận nhé)
+(Ờm tạm biệt cậu Katashi~Kun). 
+....
+Sau khi đi được 1 lúc thì Aiko bỗng thấy đường hôm nay lại vắng người đến lạ thường và đèn đường còn chưa bật kể cả những nhà xung quanh, thấy vậy nhân lúc trời vẫn còn sáng thì cô bước nhanh chân về phía trước, được 1 đoạn thì trời đã sắp tối hoàn thì thì cô đã gặp phải 3 người đàn ông. 
+(Ồ em gái, em đi đâu giờ này vậy)
+(Muốn lại gặp bọn anh à em gái ơi)
+[Nani cái gì vậy, không lẽ là mấy tên biến thái, thôi nguy rồii]
+(Các anh là ai, né ra cho em đi cơ chứ)
+(Đi đâu chứ em gái, từ từ đã nào)
+(Lại đây chơi với bọn anh tí đi rồi hẳn đi)
+(Không! Không đời nào mà lại đi với mấy cái loại biến thái bệnh hoạn như vậy tránh ra!) 
+.... 
+(Ơ kìa sao em lại nói bọn anh như vậy&#)
+(Con nhỏ này mày lại đây với taoo nàooooo*$%#%#) 
+Bụpp....
+Sao khi bị mấy người đó hét lên và dồn đến bức tường nhà gần đó thì Aiko đã đứng không vững nữa mà khuỵ xuống cùng với 1 giọng nói run rẫy chứa đầy nước mắt.
+(Ơ kìa lúc nãy mạnh miệng lắm mà sao anh chưa làm gì mà em gái đã khóc rồi, thôi nào chơi đùa với tụi anh tí rồi anh cho về)
+(Ai....đó....)
+(Cứu....tôi....với).
+(Hahahahahaha, nó đang cầu cứu kìa tụi bậy, bây giờ đường vắng và trời tối như vậy không có ai cứu được mậy đâu nên là ngoan ngoãn nghe lời tao tạo niềm vui cho bọn tao điii hahahahahahahaha lại đây nào) 
+Aiko đã nhắm mắt lại và bật khóc và 2 làn nước mặt đã chạy ướt 2 bên má cô nhưng đã có điều xảy ra. 
+\Bụp bốp bốp\ 
+(Mày là đứa nào nữa, đừng có mà làm trò anh hùng cứu mỹ nhân ở đây với bọn tao thằng nhãi ranh) 
+(Lũ cận bã chúng mãi né xa cậu ấy ra)
+(Katashi~Kun) 
+.... 
+(Cậu chạy đi đi mặc kệ mình bọn chúng nguy hiểm lắm đấy Katashi~Kun) 
+(Cậu đừng lo mau đứng dậy đi đưa cậu về nhà an toàn là nhiệm vụ của mình)
+....
+(Tụi bây nói chuyện xong chưa, đừng có ở đó làm tốn thời gian của tụi tao hahahahahaha) 
+....
+(Hắn có dao kìa Katashi cậu chạy đi) 
+....
+(Biết sợ vậy là tốt, mày không nghe nhỏ đó nói hả mau cút khỏi đây đi tao sẽ tha cho mày 1 mạng) 
+....
+(Mau chạy đii Katashi~Kunnn)
+(Đừng có nói những điều ngốc nghếch như thế chứ bỏ mặt cậu ở đây mình sẽ ân hận cả đời mất) 
+(Nhưng....nhưng nếu cậu ở lại đây thì....) (Daijōbu, daijōbu, tụi này chả là cái tẹo gì so với mình hết cũng đến lúc khởi động chút rồi.) 
+(Nào lại đây lũ rác rưởi) 
+....
+(Mày nghĩ mày là ai hả thằng nhãi). 
+(Cậu hãy lùi ra sau đi Aiko nguy hiểm lắm đấy). 
+Sau đó cả 4 người đã lao vào chiến đấu, cậu ấy đã dùng chiếc cặp của mình như 1 vũ khí đập vào đầu 1 tên, tiếp theo là 1 cú đá móc qua bên trái nhưng không may là bọn chúng có đến 3 tên, bỗng 1 đường dao lao đến chém ngang tay cậu  /1 tiếng xẹt/ máu đã phun ra đó là máu từ cánh tay phải của Katashi. 
+(Katashi Kunnnnnnnnn, đừng vì mình mà cậu liều mạng như vậy nữa mà xin cậu đấy hãy chạy đi mặc kệ mìnhh.) 
+.... 
+1 tiếng hét ên từ phía sau cậu tiếng hét đó là từ giọng của Aiko khi thấy kẻ biến thái làm cho Katashu bị thương.
+Katashi quay xuống nhìn mặt Aiko cười chấn an tinh thân bạn mình 
+(Không đâu Aiko~Chan hì) 
+....
+(Hèhehehè hôm nay tao sẽ giết mày tại đây và kế tiếp là con nhỏ đó) 
+(Ồ bộ tưởng tao để yên cho tụi mày muốn làm gì làm hả đừng có hòng đụng đến 1 sợi tóc của Aiko vì cậu ấy là người mà tao yêu). 
+Kunio lao đến phía trước kẻ cầm hung khí cũng lao đến và đâm Katashi, cậu đã dùng tay giữ lấy con dao và máu đã tuông ra cậu cắn răng đấm 1 cú thật mạnh vào mặt hắn /1 tiếng hự/ kẻ biến thái trúng đòn và ngã sang 1 bên con dao trên tay đã không còn nữa vì Katashi Đã lấy được. 
+(Lấy được rồi nhé bây giờ mày chuẩn bị tinh thần đi nhưng mà trước hết tao phải thủ tiêu con dao này đã.) 
+Katashi nắm chặt con sao và sử dụng hết sức để ném con dao đi thật xa, tên bị đấm đã đứng dậy kế tiếp là 2 tên còn lại chúng đã lao vào tẩm hội đồng cậu, Katashi né sang 1 bên xoay người đá vô đầu 1 tên, đấm vô bụng tên thứ 2 đạp văng vào tường, cả 2 trúng đoàn 1 người lăng ra ngất bởi cú đá trời giáng 1 người thì ôm bụng đau đớn, thấy vậy cậu đấm thên vài phát vào mặt cho hắn ngất xỉu, còn tên cuối cùng hắn liền lao tới đấm, cậu đã chụp được và đấm vào bụng 1 cái hự.
+Không dừng ở đó cậu tiếp tục đấm không ngừng nghỉ vào mặt tên đó đến khi tên biến thái cận bã đã ngất nhưng cậu vẫn đấm cho đến khi khuôn mặt xưng lên và biến dạng, cậu dựng lại hổn hển lại lại trói 1 tên vào cột điện,cậu gọi điện cảnh sát và đọc địa chỉ, khi xong hết mọi chuyện cậu tiến lại gần Aiko Và nói.
+(Ổn cả rồi Aiko~Chan) 
+(Cậu bị thương kìa)
+....
+(À không sao vết thương ngoài da thôi, nhìn vậy thôi chứ mình ổn mà) 
+(Ổn cái gì chứ, bị thương như thế mà ổn để mình băng bó vết thương lại cho) 
+(A ui da đau đauu) 
+(Vậy mà bảo ổn, đừng có liều mạng như thế vì mình cậu có thể bỏ chạy vào những tình huống này mà, cậu liều vậy mà bị gì thì mình sống cả cuộc đời trong tội lỗi mất) 
+(Thôi mà, biết là cậu lo cho mình những cậu cũng phải nghĩ cho bản thân cậu đi chứ đừng có khóc nhìn cậu khóc như thế mình không cầm lòng được). 
+(Ểh thôi chết hắn tỉnh lại rồi) 
+(Không xong rồi Aiko Chan À cảnh sát chưa tới nữa mà lúc nãy mình bị thương đã cố gắng đấm hết sức lũ đó bây giờ tay minh rã rời rồi nhưng chân mình vẫn còn khỏe cậu chạy được chứ) 
+(Mình chạy được, ểh) 
+(Nhưng trong tình huốn này có lẽ không được rồi, Aiko Chan xin phép cậu). 
+Katashi bế Aiko lên trên tay và chạy thẳng về nhà. 
+[Bình thường cậu ấy nhìn lười biến thiếu sức sống mà bây giờ nhìn cậu ấy ngầu quá vậy, nếu hôm nay mình không có cậu ấy thì mình đã....] 
+[Khỉ thật bọn chúng bám dai như đỉa vậy nếu bây giờ mình chạy tới nhà thì bọn chúng sẽ biết được nhà thì lại càng nguy hiểm hơn nên rẻ sang hướng khác cắt đuôi mới được, có điện lại rồi đúng lúc lắm bây giờ có thể chúng không dám đuổi theo nữa nhanh chân lên mới được] 
+Tới nhà Aiko cậu thả Aiko xuống và thở hổn hển.
+/Tiếng thở/ 
+(Cậu ở nhà 1 mình liệu có ổn không đấy, hay là cậu qua nhà mình ngủ 1 đêm đi, cậu có thể ngủ cùng em gái mình) 
+(Mình làm phiền cậu nhiêu đủ rồi)
+....
+(Mà cậu đi mua đồ cho Sumi rồi sao cậu biết mình gặp nguy hiểm mà tới vậy) 
+(À thì lúc nãy mình đang trên đường đi mua những chợt nghe được cuộc trò chuyện người đi đường nói là khu chổ mình bị mất điện và mình sợ cậu gặp nguy hiểm nên đã tức tốc chạy về). 
+(Thì ra là vậy, thế cậu chưa mua đồ cho Sumi à) 
+(Ờm) 
+(Thật sự hôm nay mình rất biết ơn cậu Arigatogozaimatsu Katashi Kun) 
+(Không có gì, cậu không sao là tốt rồi, nhưng cậu ở nhà 1 mình thì nhớ khóa chặt cửa có động tĩnh hay tiếng động gì thì ở yên trong phong và gọi điện cho mình không phiền đâu)
+....
+(Nhưng trước hết để mình vào kiểm tra kỹ nhà cậu đã coi có kẻ nào đột nhập hay không) 
+Một lúc sau. 
+(Ok ổn rồi nhớ lời mình dặn đấy) 
+(À ờm). 
+(Vậy mình về đây hẹn gặp lại) 
+(Ờ tạm biệt Katashi~Kun) 
+Kunio rạo bước đi về 
+[Ây bây giờ đã trễ như vậy rồi không biết Sumi có ăn gì chưa hay là đợi mình đây nữa] 
+Katashi tới nhà và mở cửa ra 
+(Ểhhhhhhh Oni chan bị sao vậy) 
+(À này bị xướt ngoài da thôi) 
+(Xướt cái con khỉ để em lấy đồ băng bó cho) 
+(Thôi không cần đâu nãy anh vào nhà Aiko được cậu ấy băng bó cho rồi tại lúc máu nó chảy ra nhiều nên mới vậy mà bây thì ổn rồi, mà em đã ăn gì chưa Sumi?) 
+(Em ăn vào lúc chiều rồi, hôm nay em tự mình nấu lẩu nên ăn em tính đợi anh về ăn chung mà tự nhiên thấy nồi lẩu em đói qua cưỡng không được hì).
+....
+(Cáiiii gì, hôm nay em gái tui biết xuống bếp nấu ăn ư không thể tin được sự thật trước mắt này) 
+(Đừng có nói như kiểu 1 tỷ năm em mới lần đầu nấu ăn chứ Oni Chan, hừ....) 
+(Thoii mà thoii mà cho anh xin lỗiiiiiii đừng có giận anh mà:((( em gái bé bỏng của anh) 
+(Em đâu có giận đâu, đùa anh tí thôi, cơ mà trước hết anh vào ăn đi rồi hả tắm sáng anh nhịn đói đi học mà nên bây giờ Oni~Chan ngốc của em đói lắm rồii phải khôngg). 
+(À ừ) 
+Katashi vào bàn và ngồi ăn khuôn mặt thõa mãn cơn đói đó khiến Sumi bật cười. 
+(Hì) 
+(Hả cười gì) 
+(Nhìn mặt anh ăn trong hài kịch lắm haha) 
+(Ồ vậy à, mà này Sumi) 
+(Có chuyện gì à Niii San) 
+(Đúng vậy 1 chuyện vô cùng quan trọng anh cần nói với em)
+....
+(Hể chuyện gì nói em nghe xem nào) 
+(L....L....L....Lẩu mà em nấu ngon vãii phải nói là tinh hoa của ẩm thực chưa bao giờ anh ăn ngon đến vậy, nghĩ tới cảnh em nấu món này cho anh khiến anh cảm động đến phát khóc, không ngờ lại có ngày đứa em gái của anh lại trổ tài nấu nướng thế này~~~~) 
+(Hahahaha được anh khen vậy làm em nở mũi quá) 
+(Em gái của anh đúng là số 1 lần tới lại nấu anh ăn nữa nhé)
+(Nếu anh đã nói như vậy thì khi nào em rảnh thì sẽ nấu cho anh ae mình cùng ăn). 
+1 lúc sau, khi ăn xong Katashi đi tắm và băng lại vết thương đi ra thì đã thấy Sumi đứng đợi sẵn. 
+(Ể gì vậy?) 
+[Thôi xong rồi thôi xong rồi mình cảm nhận được 1 điều không hay sắp ập tớii lúc nãy mình có nói gì đó làm nó giận à, làm sao để thoát khỏi tình huống này đâyy!] 
+(Được rồi có lẽ em hơi quá đáng nhưng bây giờ thì anh hãy kể hết mọi việc lại cho em nghe nào Oni-Chan) 
+(Thôi được rồi để anh kể...) 
+Katashi ngồi kể lại từng sự việc cho Sumi nghe. 
+(Mọi chuyện là thế đấy, nhưng mà anh chưa có mua socola cho em.)
+.... 
+(Cáiiiii gì thật sự quá nguy hiểm, đúng Oni~Chan Ngốc mà cái đó mai đi mua cũng được mà còn không thì anh rủ bà chị đó đi chung cũng được mà đâu nhất thiết phải mua bằng được cho em đâu cái bà chị dâu của em quan trọng hơn, không anh lại bỏ người ta về 1 mình như thế) 
+(Thì anh đâu có biết là hôm nay bị mất điện đâu nếu biết anh đã không để Aiko về 1 mình rồi, ểh chị dâu??) 
+.... 
+(Đùa nhau à Sumi)
+(Em đâu có đùa chị ấy thích anh mà anh không biết à). 
+(Anh với Aiko chỉ là bạn thôi sao mà có dụ đó được em lại đi nói lung tung nữa rồi) 
+(Bởi vậy em mới nói là Oni~Chan Baka đó) 
+(Này này đừng có ở đó mà nói năn lung tung nữa đi ngủ đi mai chúng ta đi vào trung tâm thương mại mua ít đồ) 
+(Vâng Oni~Chan Ngốc, sẵn dẫn em qua nhà bà chị hỏi thăm tinh thần bả sao rồi) 
+(Được thôi nhưng đừng có nói năn lung tung đấy) 
+(Biết ời ngủ ngon nhé Oni~Chan) 
+(Ừ em ngủ ngon nhé Sumi). 
+Đã Hết Chương 1 Rồi Tôi Là KCSM•IAM Đây Cảm Ơn Các Bạn Đã Đồng Hành Hết Chương 1, Tôi Mong Các Bạn Cũng Vẫn Sẽ Tiếp Tục Đồng Hành Các Chương Khác Và Vol Khác Chào Nhé Hẹn Gặp Lại Vào Chương 2 Hứa Hẹn Sẽ Là 1 Chương Vô Cùng Thú Vị Đấy. 
+`
+        }
+      ]
+    };
+
+    /* ================== Utilities & storage keys ================== */
+    const grid = document.getElementById('grid');
+    const overlay = document.getElementById('overlay');
+    const modal = document.getElementById('modal');
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const LS_BOOKMARKS = 'kln_bookmarks_v2';
+    const LS_LAST = 'kln_last_v2';
+    const LS_COMMENTS = 'kln_comments_v2';
+    const LS_RATINGS = 'kln_ratings_v2';
+    const LS_THEME = 'kln_theme_v2';
+
+    function getLS(k, def){ try{ return JSON.parse(localStorage.getItem(k) || JSON.stringify(def)); }catch(e){ return def; } }
+    function setLS(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+
+    function isBookmarked(id){ const b = getLS(LS_BOOKMARKS,[]); return b.includes(id); }
+    function toggleBookmark(id){ const b = getLS(LS_BOOKMARKS,[]); const idx = b.indexOf(id); if(idx>=0) b.splice(idx,1); else b.push(id); setLS(LS_BOOKMARKS,b); renderGrid(); }
+
+    function saveLastRead(storyId, chapId){ setLS(LS_LAST, {story:storyId, chap:chapId, ts: Date.now()}); }
+    function getLastRead(){ return getLS(LS_LAST, null); }
+
+    function getComments(){ return getLS(LS_COMMENTS, []); }
+    function saveComments(arr){ setLS(LS_COMMENTS, arr); }
+
+    function getRatings(){ return getLS(LS_RATINGS, []); }
+    function saveRatings(arr){ setLS(LS_RATINGS, arr); }
+
+    function getTheme(){ return localStorage.getItem(LS_THEME) || 'light'; }
+    function setTheme(t){ localStorage.setItem(LS_THEME, t); }
+
+    /* safe HTML */
+    function esc(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    /* ================== Render grid (single work) ================== */
+    function renderGrid(){
+      grid.innerHTML = '';
+      const s = STORY;
+      const card = document.createElement('div'); card.className='card';
+      card.innerHTML = `
+        <img class="cover" src="${s.cover}" alt="${esc(s.title)}" onerror="this.onerror=null;this.src='images/cover-placeholder.jpg'">
+        <div class="meta">
+          <div class="title">${esc(s.title)}</div>
+          <div class="author">Tác giả: ${esc(s.author)} • ${esc(s.vol)}</div>
+          <div class="desc" style="margin-top:10px">Thể loại: Romcom</div>
+          <div style="margin-top:10px;color:var(--muted)">${esc(s.cast.join(' • '))}</div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary" id="open-read">Đọc truyện</button>
+            <button class="btn btn-ghost" id="bookmark-btn">${isBookmarked(s.id)?'★ Bookmarked':'☆ Bookmark'}</button>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+      document.getElementById('open-read').addEventListener('click', ()=> openReader(s.id, s.chapters[0].id));
+      document.getElementById('bookmark-btn').addEventListener('click', ()=> toggleBookmark(s.id));
+    }
+
+    /* ================== Modal (details) ================== */
+    function openStoryModal(){
+      const s = STORY;
+      modal.innerHTML = '';
+      const top = document.createElement('div');
+      top.innerHTML = `<div style="display:flex;gap:12px;align-items:flex-start">
+        <img class="cover-lg" src="${s.cover}" onerror="this.onerror=null;this.src='images/cover-placeholder.jpg'">
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:20px">${esc(s.title)}</div>
+          <div style="color:#666;margin-top:6px">Tác giả: ${esc(s.author)} • ${esc(s.vol)}</div>
+          <div style="margin-top:10px;color:var(--muted)">${esc(s.cast.join('<br>'))}</div>
+          <div style="margin-top:12px">
+            <button class="btn btn-primary" id="modal-start">▶ Bắt đầu đọc</button>
+            <button class="btn btn-ghost" id="modal-book">${isBookmarked(s.id)?'★ Bookmarked':'☆ Bookmark'}</button>
+          </div>
+        </div>
+      </div>`;
+      modal.appendChild(top);
+
+      const list = document.createElement('div'); list.style.marginTop='12px';
+      STORY.chapters.forEach(ch=>{
+        const el = document.createElement('div'); el.className='chap-item'; el.textContent = ch.title;
+        el.addEventListener('click', ()=> { closeModal(); openReader(STORY.id, ch.id); });
+        list.appendChild(el);
+      });
+      modal.appendChild(list);
+
+      const closeBtn = document.createElement('div'); closeBtn.textContent='✕'; closeBtn.style.position='absolute'; closeBtn.style.right='12px'; closeBtn.style.top='12px'; closeBtn.style.cursor='pointer'; closeBtn.style.color='#666';
+      closeBtn.addEventListener('click', closeModal);
+      modal.appendChild(closeBtn);
+
+      overlay.classList.add('show');
+      document.getElementById('modal-start').addEventListener('click', ()=>{ closeModal(); openReader(STORY.id, STORY.chapters[0].id); });
+      document.getElementById('modal-book').addEventListener('click', ()=>{ toggleBookmark(STORY.id); document.getElementById('modal-book').textContent = isBookmarked(STORY.id)?'★ Bookmarked':'☆ Bookmark'; renderGrid(); });
+    }
+    function closeModal(){ overlay.classList.remove('show'); modal.innerHTML = ''; }
+
+    /* ================== Reader (full-screen) ================== */
+    function openReader(storyId, chapId){
+      closeReader();
+      const story = STORY;
+      const ix = story.chapters.findIndex(c => c.id === chapId);
+      if(ix === -1) return;
+      const ch = story.chapters[ix];
+
+      const reader = document.createElement('div'); reader.className = 'reader-full';
+      reader.innerHTML = `
+        <div class="reader-toolbar" role="toolbar">
+          <div class="reader-controls">
+            <button class="btn" id="r-back">← Quay lại</button>
+            <button class="btn" id="r-prev">Prev</button>
+            <button class="btn" id="r-next">Next</button>
+          </div>
+          <div style="font-weight:700">${esc(ch.title)}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-ghost" id="r-theme">${getTheme() === 'dark' ? '☾' : '🌞'}</button>
+            <button class="btn btn-ghost" id="r-book">${isBookmarked(story.id)?'★':'☆'}</button>
+            <button class="btn btn-ghost" id="r-close">Đóng</button>
+          </div>
+        </div>
+        <div class="reader-body" id="reader-body"></div>
+      `;
+      document.body.appendChild(reader);
+
+      // prepare content paragraphs: split by double newlines, preserve original spacing
+      const raw = ch.content;
+      const paras = raw.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+      const body = reader.querySelector('#reader-body');
+      body.innerHTML = paras.map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('') +
+        `<hr style="border:none;border-top:1px solid rgba(0,0,0,0.06);margin:18px 0">`;
+
+      // add actions: next chapter button (if none, button disabled), and chapter navigation
+      const navWrap = document.createElement('div');
+      navWrap.style.marginTop = '16px';
+      navWrap.style.display = 'flex';
+      navWrap.style.justifyContent = 'space-between';
+      navWrap.style.alignItems = 'center';
+      navWrap.innerHTML = `
+        <div style="font-weight:700">Kết thúc chương — Cảm ơn bạn đã đọc.</div>
+        <div>
+          <button class="btn btn-ghost" id="goto-toc">Mở danh mục</button>
+          ${ ix < story.chapters.length-1 ? `<button class="btn btn-primary" id="goto-next">→ Chương ${ix+2}</button>` : `<button class="btn btn-ghost" disabled>→ Chương tiếp theo</button>`}
+        </div>
+      `;
+      body.appendChild(navWrap);
+
+      // comments block
+      const comments = document.createElement('div');
+      comments.className = 'comments-panel';
+      comments.innerHTML = `
+        <div style="font-weight:700;margin-bottom:8px">Bình luận & Đánh giá (lưu cục bộ)</div>
+        <div class="rating-row"><div style="font-weight:600">Đánh giá trung bình:</div><div id="avg-rating" style="margin-left:8px;font-weight:700">—</div></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+          <input id="comment-name" placeholder="Tên (hiển thị)" style="flex:0 0 36%;padding:10px;border-radius:10px;border:1px solid #ddd">
+          <select id="comment-stars" style="padding:10px;border-radius:10px;border:1px solid #ddd">
+            <option value="5">5 ★</option><option value="4">4 ★</option><option value="3">3 ★</option><option value="2">2 ★</option><option value="1">1 ★</option>
+          </select>
+          <button class="btn btn-primary" id="post-comment">Đăng</button>
+        </div>
+        <textarea id="comment-text" placeholder="Viết bình luận..." style="width:100%;min-height:100px;padding:12px;border-radius:10px;border:1px solid #ddd;resize:vertical"></textarea>
+        <div id="comments-list" style="margin-top:12px"></div>
+      `;
+      body.appendChild(comments);
+
+      function renderComments(){
+        const all = getComments().filter(c => c.story === story.id && c.chap === ch.id);
+        const cl = comments.querySelector('#comments-list');
+        if(all.length === 0){
+          cl.innerHTML = '<div style="color:#666">Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</div>';
+        } else {
+          cl.innerHTML = all.map(c => {
+            return `<div class="comment">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div style="font-weight:700">${esc(c.name || 'Ẩn danh')}</div>
+                <div style="color:#f5a623;font-weight:700">${'★'.repeat(c.stars)}${'☆'.repeat(5-c.stars)}</div>
+              </div>
+              <div class="meta" style="margin-top:6px;color:#666">${new Date(c.ts).toLocaleString()}</div>
+              <div style="margin-top:8px">${esc(c.text)}</div>
+            </div>`;
+          }).join('');
+        }
+
+        const ratings = getRatings().filter(r => r.story === story.id && r.chap === ch.id);
+        const avgEl = comments.querySelector('#avg-rating');
+        if(ratings.length === 0) avgEl.textContent = 'Chưa có';
+        else {
+          const avg = ratings.reduce((s,r)=>s+r.stars,0) / ratings.length;
+          avgEl.textContent = avg.toFixed(2) + ' / 5 — (' + ratings.length + ' đánh giá)';
+        }
+      }
+
+      comments.querySelector('#post-comment').addEventListener('click', ()=>{
+        const name = comments.querySelector('#comment-name').value.trim() || 'Ẩn danh';
+        const text = comments.querySelector('#comment-text').value.trim();
+        const stars = parseInt(comments.querySelector('#comment-stars').value,10) || 5;
+        if(!text){ alert('Vui lòng nhập nội dung bình luận.'); comments.querySelector('#comment-text').focus(); return; }
+        const cs = getComments();
+        cs.unshift({story: story.id, chap: ch.id, name, text, stars, ts: Date.now()});
+        saveComments(cs);
+        const rs = getRatings();
+        rs.unshift({story: story.id, chap: ch.id, stars, ts: Date.now()});
+        saveRatings(rs);
+        comments.querySelector('#comment-text').value = '';
+        comments.querySelector('#comment-name').value = '';
+        renderComments();
+      });
+
+      renderComments();
+
+      // controls
+      reader.querySelector('#r-back').addEventListener('click', ()=> { closeReader(); });
+      reader.querySelector('#r-close')?.addEventListener('click', ()=> { closeReader(); });
+      reader.querySelector('#r-prev').addEventListener('click', ()=> { if(ix>0) openReader(story.id, story.chapters[ix-1].id); });
+      reader.querySelector('#r-next').addEventListener('click', ()=> { if(ix < story.chapters.length-1) openReader(story.id, story.chapters[ix+1].id); });
+      reader.querySelector('#r-theme').addEventListener('click', ()=>{
+        const cur = getTheme() === 'dark' ? 'light' : 'dark';
+        setTheme(cur);
+        applyTheme(reader, cur);
+        reader.querySelector('#r-theme').textContent = cur === 'dark' ? '☾' : '🌞';
+      });
+      reader.querySelector('#r-book').addEventListener('click', (e)=>{ toggleBookmark(story.id); e.currentTarget.textContent = isBookmarked(story.id) ? '★' : '☆'; renderGrid(); });
+
+      // extra buttons
+      body.querySelector('#goto-toc')?.addEventListener('click', ()=> { closeReader(); openStoryModal(); });
+      body.querySelector('#goto-next')?.addEventListener('click', ()=> { if(ix < story.chapters.length-1) openReader(story.id, story.chapters[ix+1].id); });
+
+      // keyboard navigation
+      function keyHandler(ev){
+        if(ev.key === 'ArrowLeft'){ if(ix>0) openReader(story.id, story.chapters[ix-1].id); }
+        if(ev.key === 'ArrowRight'){ if(ix < story.chapters.length-1) openReader(story.id, story.chapters[ix+1].id); }
+        if(ev.key === 'Escape'){ closeReader(); }
+      }
+      document.addEventListener('keydown', keyHandler);
+      reader._cleanup = () => document.removeEventListener('keydown', keyHandler);
+
+      // save last
+      saveLastRead(story.id, ch.id);
+
+      // apply theme
+      applyTheme(reader, getTheme());
+
+      // scroll top
+      window.scrollTo({top:0, behavior:'instant'});
+    }
+
+    function applyTheme(node, theme){
+      if(!node) return;
+      if(theme === 'dark') node.classList.add('reader-dark'); else node.classList.remove('reader-dark');
+    }
+
+    function closeReader(){
+      const r = document.querySelector('.reader-full');
+      if(r){
+        if(r._cleanup) r._cleanup();
+        r.remove();
+      }
+    }
+
+    /* ================== Petals & Sparkles ================== */
+    function spawnPetals(n=18){
+      const wrap = document.getElementById('sakura');
+      for(let i=0;i<n;i++){
+        const el = document.createElement('div'); el.className='petal';
+        el.style.left = (Math.random()*110) + 'vw';
+        const size = 10 + Math.random()*26;
+        el.style.width = size+'px'; el.style.height = size+'px';
+        el.style.animationDuration = (6 + Math.random()*10) + 's';
+        el.style.animationDelay = (Math.random()*-8) + 's';
+        wrap.appendChild(el);
+        setTimeout(()=>{ if(el && el.parentNode) el.parentNode.removeChild(el); }, (parseFloat(el.style.animationDuration)*1000) + 5000);
+      }
+      setTimeout(()=>spawnPetals(12), 4200 + Math.random()*3500);
+    }
+    function spawnSparkles(n=10){
+      const wrap = document.getElementById('sparkles');
+      for(let i=0;i<n;i++){
+        const el = document.createElement('div'); el.className='spark';
+        el.style.left = (Math.random()*100)+'vw';
+        el.style.top = (Math.random()*window.innerHeight*0.6 + 10) + 'px';
+        el.style.animationDuration = (3 + Math.random()*5)+'s';
+        el.style.opacity = (0.2 + Math.random()*0.9);
+        wrap.appendChild(el);
+        setTimeout(()=>{ if(el && el.parentNode) el.parentNode.removeChild(el); }, (parseFloat(el.style.animationDuration)*1000)+3000);
+      }
+      setTimeout(()=>spawnSparkles(8), 2500 + Math.random()*3000);
+    }
+
+    /* image fallback */
+    window.addEventListener('error', function(e){
+      if(e.target && e.target.tagName === 'IMG') e.target.src = 'images/cover-placeholder.jpg';
+    }, true);
+
+    /* ================== Init ================== */
+    function init(){
+      renderGrid();
+      document.querySelectorAll('.card .cover').forEach(c => c.addEventListener('click', openStoryModal));
+      spawnPetals(20);
+      spawnSparkles(12);
+
+      // resume prompt
+      const last = getLastRead();
+      if(last && last.story === STORY.id){
+        setTimeout(()=> {
+          if(confirm('Bạn có muốn tiếp tục chương trước không?')) openReader(last.story, last.chap);
+        }, 300);
+      }
+
+      overlay.addEventListener('click', (ev)=>{ if(ev.target === overlay) closeModal(); });
+
+      // make title blue (sea gradient) explicitly in JS to ensure vivid color
+      const tilde = document.querySelector('.site-title .tilde');
+      if(tilde) { /* already gradient via CSS */ }
+    }
+
+    init();
+
+    // expose for debugging
+    window.openReader = openReader;
+    window.openStoryModal = openStoryModal;
+    window.closeReader = closeReader;
+  </script>
+</body>
+</html>
